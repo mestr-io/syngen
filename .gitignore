@@ -1,0 +1,6 @@
+bin/
+temp_export/
+slack-exports/
+
+export.zip
+debug.zip
