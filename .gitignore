@@ -4,3 +4,6 @@ slack-exports/
 
 export.zip
 debug.zip
+*.zip
+obj/
+syngen_temp_*
