@@ -6,7 +6,7 @@
 #include "faker_data.h"
 
 void faker_init() {
-    srand(time(NULL));
+    srand((unsigned int)time(NULL));
 }
 
 // Helper to get random int in range [min, max]
@@ -64,30 +64,35 @@ char *faker_lorem_word() {
 
 char *faker_lorem_sentence(int min_words, int max_words) {
     int count = rand_range(min_words, max_words);
-    int total_len = 0;
+    size_t total_len = 0;
     
     // First pass: calculate length
     // We'll just alloc a safe large buffer or realloc. 
     // Let's guess average word length 6 + space.
-    int capacity = count * 10 + 1;
+    size_t capacity = (size_t)count * 10 + 1;
     char *sentence = malloc(capacity);
     sentence[0] = '\0';
     
     for (int i = 0; i < count; i++) {
         const char *word = faker_words[rand() % faker_words_count];
-        int word_len = strlen(word);
+        size_t word_len = strlen(word);
         
         // Resize if needed
         if (total_len + word_len + 2 > capacity) {
             capacity *= 2;
-            sentence = realloc(sentence, capacity);
+            char *tmp = realloc(sentence, capacity);
+            if (!tmp) {
+                free(sentence);
+                return NULL;
+            }
+            sentence = tmp;
         }
         
         if (i == 0) {
             // Capitalize first letter
             char temp[128];
             strncpy(temp, word, 127);
-            temp[0] = toupper(temp[0]);
+            temp[0] = (char)toupper((unsigned char)temp[0]);
             strcpy(sentence, temp);
             total_len += word_len;
         } else {
@@ -107,8 +112,18 @@ char *faker_lorem_paragraph(int min_sentences, int max_sentences) {
     
     for (int i = 0; i < count; i++) {
         char *sent = faker_lorem_sentence(4, 12);
+        if (!sent) { // Handle failure
+            free(paragraph);
+            return NULL;
+        }
         size_t new_len = strlen(paragraph) + strlen(sent) + 2;
-        paragraph = realloc(paragraph, new_len);
+        char *tmp = realloc(paragraph, new_len);
+        if (!tmp) {
+            free(paragraph);
+            free(sent);
+            return NULL;
+        }
+        paragraph = tmp;
         strcat(paragraph, sent);
         strcat(paragraph, " ");
         free(sent);
@@ -134,7 +149,7 @@ void faker_create_user(User *user) {
     // Username: first.last (lowercase)
     snprintf(user->name, sizeof(user->name), "%s.%s", first, last);
     // Lowercase it
-    for(char *p = user->name; *p; ++p) *p = tolower(*p);
+    for(char *p = user->name; *p; ++p) *p = (char)tolower((unsigned char)*p);
     
     snprintf(user->email, sizeof(user->email), "%s@example.com", user->name);
     

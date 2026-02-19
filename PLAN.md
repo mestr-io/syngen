@@ -82,6 +82,13 @@ syngen -c <channels> -m <messages> -u <users> <output_filename>
 #### Testing
 - [x] End-to-end test: Run `syngen` and unzip the output to check integrity.
 
+### Phase 6: Code Quality & Linting
+- [x] Add `lint` target to `Makefile`.
+- [x] Configure `cppcheck` (if available) or strict compiler flags for static analysis.
+- [x] Document linting procedures in `README.md`.
+#### Testing
+- [x] Run `make lint` and fix any reported issues.
+
 ## 5. Data Strategy
 -   **Names**: We will extract ~1000 common names from the `faker` library.
 -   **Text**: We will use a standard "Lorem Ipsum" word list to generate sentences.

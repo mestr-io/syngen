@@ -38,16 +38,24 @@ static int rand_gaussian_index(int max) {
     return idx;
 }
 
+static int compare_msgs(const void *a, const void *b) {
+    const Message *ma = (const Message *)a;
+    const Message *mb = (const Message *)b;
+    if (ma->ts < mb->ts) return -1;
+    if (ma->ts > mb->ts) return 1;
+    return 0;
+}
+
 User *generate_users(int count) {
-    User *users = malloc(sizeof(User) * count);
+    User *users = malloc(sizeof(User) * (size_t)count);
     for (int i = 0; i < count; i++) {
         faker_create_user(&users[i]);
     }
     return users;
 }
 
-Channel *generate_channels(int count, User *users, int user_count) {
-    Channel *channels = malloc(sizeof(Channel) * count);
+Channel *generate_channels(int count, const User *users, int user_count) {
+    Channel *channels = malloc(sizeof(Channel) * (size_t)count);
     for (int i = 0; i < count; i++) {
         // Pick a random creator
         int creator_idx = rand() % user_count;
@@ -59,7 +67,7 @@ Channel *generate_channels(int count, User *users, int user_count) {
         if (num_members > user_count) num_members = user_count;
         if (num_members < 1) num_members = 1; // At least creator
         
-        channels[i].members = malloc(sizeof(char*) * num_members);
+        channels[i].members = malloc(sizeof(char*) * (size_t)num_members);
         channels[i].member_count = 0;
         
         // Always add creator first
@@ -70,7 +78,7 @@ Channel *generate_channels(int count, User *users, int user_count) {
         // Since user_count is small (10-100), brute force check is fine.
         while (channels[i].member_count < num_members) {
             int u_idx = rand() % user_count;
-            char *uid = users[u_idx].id;
+            const char *uid = users[u_idx].id;
             
             // Check existence
             int exists = 0;
@@ -90,10 +98,10 @@ Channel *generate_channels(int count, User *users, int user_count) {
     return channels;
 }
 
-Message *generate_messages(int count, Channel *channels, int channel_count, User *users, int user_count) {
+Message *generate_messages(int count, const Channel *channels, int channel_count, const User *users, int user_count) {
     (void)user_count;
     
-    Message *messages = malloc(sizeof(Message) * count);
+    Message *messages = malloc(sizeof(Message) * (size_t)count);
     
     // Sort channels? No, we access by index.
     
@@ -104,7 +112,7 @@ Message *generate_messages(int count, Channel *channels, int channel_count, User
     for (int i = 0; i < count; i++) {
         // Pick Channel using Gaussian
         int ch_idx = rand_gaussian_index(channel_count);
-        Channel *ch = &channels[ch_idx];
+        const Channel *ch = &channels[ch_idx];
         
         // Pick User from Channel Members
         // We can just pick uniformly from members for now, or Gaussian if we want "loud" users
@@ -130,16 +138,7 @@ Message *generate_messages(int count, Channel *channels, int channel_count, User
     // Let's sort them now to make file writing easier (sequential access).
     // Simple bubble sort or qsort.
     
-    // qsort comparator
-    int compare_msgs(const void *a, const void *b) {
-        Message *ma = (Message *)a;
-        Message *mb = (Message *)b;
-        if (ma->ts < mb->ts) return -1;
-        if (ma->ts > mb->ts) return 1;
-        return 0;
-    }
-    
-    qsort(messages, count, sizeof(Message), compare_msgs);
+    qsort(messages, (size_t)count, sizeof(Message), compare_msgs);
     
     return messages;
 }

@@ -25,7 +25,16 @@ $(OBJ_DIR)/%.o: %.c
 test: $(TARGET)
 	./tests/test.sh
 
+lint:
+	@if command -v cppcheck >/dev/null 2>&1; then \
+		echo "Running cppcheck..."; \
+		cppcheck --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction --error-exitcode=1 -Iinclude -Isrc -Ivendor/cJSON $(SRC_DIR); \
+	else \
+		echo "cppcheck not found. Running strict compiler checks..."; \
+		$(CC) $(CFLAGS) -Werror -pedantic -Wconversion -Wshadow -fsyntax-only $(SRCS); \
+	fi
+
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-.PHONY: all clean test
+.PHONY: all clean test lint

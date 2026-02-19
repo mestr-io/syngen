@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     int c_count = 25;
     int m_count = 1000;
     int u_count = 10;
-    char *output_filename = NULL;
+    const char *output_filename = NULL;
     
     int opt;
     while ((opt = getopt(argc, argv, "c:m:u:")) != -1) {

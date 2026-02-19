@@ -21,7 +21,7 @@ void export_init(const char *base_path) {
     create_directory(base_path);
 }
 
-void export_write_users(const char *base_path, User *users, int count) {
+void export_write_users(const char *base_path, const User *users, int count) {
     cJSON *root = cJSON_CreateArray();
     
     for (int i = 0; i < count; i++) {
@@ -67,7 +67,7 @@ void export_write_users(const char *base_path, User *users, int count) {
     cJSON_Delete(root);
 }
 
-void export_write_channels(const char *base_path, Channel *channels, int count) {
+void export_write_channels(const char *base_path, const Channel *channels, int count) {
     cJSON *root = cJSON_CreateArray();
     
     for (int i = 0; i < count; i++) {
@@ -104,16 +104,38 @@ void export_write_channels(const char *base_path, Channel *channels, int count) 
     cJSON_Delete(root);
 }
 
-static char *get_channel_name_by_id(Channel *channels, int count, const char *id) {
+static char *get_channel_name_by_id(const Channel *channels, int count, const char *id) {
     for (int i = 0; i < count; i++) {
         if (strcmp(channels[i].id, id) == 0) {
-            return channels[i].name;
+            return (char *)channels[i].name; // Cast to discard const, assuming caller doesn't modify
         }
     }
     return "unknown";
 }
 
-void export_write_messages(const char *base_path, Message *messages, int count, Channel *channels, int channel_count) {
+static int compare_refs(const void *a, const void *b) {
+    struct MsgRef {
+        int index;
+        char channel_id[12];
+        time_t date; // Rounded to day
+        double ts;
+    };
+    const struct MsgRef *ra = (const struct MsgRef *)a;
+    const struct MsgRef *rb = (const struct MsgRef *)b;
+    
+    int ch_cmp = strcmp(ra->channel_id, rb->channel_id);
+    if (ch_cmp != 0) return ch_cmp;
+    
+    if (ra->date < rb->date) return -1;
+    if (ra->date > rb->date) return 1;
+    
+    if (ra->ts < rb->ts) return -1;
+    if (ra->ts > rb->ts) return 1;
+    
+    return 0;
+}
+
+void export_write_messages(const char *base_path, const Message *messages, int count, const Channel *channels, int channel_count) {
     // We need to group by channel and date.
     // Since implementing a hash map is complex in C, we will iterate and append to files.
     // This is inefficient but simple.
@@ -134,7 +156,7 @@ void export_write_messages(const char *base_path, Message *messages, int count, 
         double ts;
     };
     
-    struct MsgRef *refs = malloc(sizeof(struct MsgRef) * count);
+    struct MsgRef *refs = malloc(sizeof(struct MsgRef) * (size_t)count);
     for (int i = 0; i < count; i++) {
         refs[i].index = i;
         strcpy(refs[i].channel_id, messages[i].channel);
@@ -150,24 +172,7 @@ void export_write_messages(const char *base_path, Message *messages, int count, 
         refs[i].date = mktime(tm_info);
     }
     
-    // Sort by Channel ID, then Date, then Timestamp
-    int compare_refs(const void *a, const void *b) {
-        struct MsgRef *ra = (struct MsgRef *)a;
-        struct MsgRef *rb = (struct MsgRef *)b;
-        
-        int ch_cmp = strcmp(ra->channel_id, rb->channel_id);
-        if (ch_cmp != 0) return ch_cmp;
-        
-        if (ra->date < rb->date) return -1;
-        if (ra->date > rb->date) return 1;
-        
-        if (ra->ts < rb->ts) return -1;
-        if (ra->ts > rb->ts) return 1;
-        
-        return 0;
-    }
-    
-    qsort(refs, count, sizeof(struct MsgRef), compare_refs);
+    qsort(refs, (size_t)count, sizeof(struct MsgRef), compare_refs);
     
     // Now iterate and write
     cJSON *current_array = NULL;
@@ -175,13 +180,13 @@ void export_write_messages(const char *base_path, Message *messages, int count, 
     
     for (int i = 0; i < count; i++) {
         int original_idx = refs[i].index;
-        Message *m = &messages[original_idx];
+        const Message *m = &messages[original_idx];
         
         // Determine file path
-        char *ch_name = get_channel_name_by_id(channels, channel_count, refs[i].channel_id);
+        const char *ch_name = get_channel_name_by_id(channels, channel_count, refs[i].channel_id);
         
         time_t t = (time_t)m->ts;
-        struct tm *tm_info = localtime(&t);
+        const struct tm *tm_info = localtime(&t);
         char date_str[12];
         strftime(date_str, sizeof(date_str), "%Y-%m-%d", tm_info);
         
