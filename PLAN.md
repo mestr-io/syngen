@@ -89,6 +89,21 @@ syngen -c <channels> -m <messages> -u <users> <output_filename>
 #### Testing
 - [x] Run `make lint` and fix any reported issues.
 
+### Phase 7: Enhanced Features (Avatars & Threads)
+- [x] **User Avatars**:
+    -   Update `User` model with `avatar_hash`.
+    -   Generate random hex hash in Faker.
+    -   Export Gravatar URLs in `users.json`.
+- [x] **Message Threads**:
+    -   Update `Message` model with `thread_ts`, `parent_user_id`, and reply metadata (`replies`, `reply_count`).
+    -   Implement threaded generation logic (reply probability, parent state management).
+    -   Update `export_write_messages` to output thread fields.
+    -   Add CLI flag `-t` for thread probability.
+#### Testing
+- [x] Verify `users.json` contains `avatar_hash` and image URLs.
+- [x] Verify message files contain `thread_ts` and `replies` arrays.
+- [x] Run integration tests (`make test`).
+
 ## 5. Data Strategy
 -   **Names**: We will extract ~1000 common names from the `faker` library.
 -   **Text**: We will use a standard "Lorem Ipsum" word list to generate sentences.
