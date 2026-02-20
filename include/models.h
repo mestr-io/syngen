@@ -27,11 +27,26 @@ typedef struct {
 
 // Message Model
 typedef struct {
+    char user[12];
+    double ts;
+} ReplyInfo;
+
+typedef struct {
     char user[12];         // User ID
     char channel[12];      // Channel ID (Internal use for grouping)
     char type[16];         // message
     double ts;             // 1756191830.368749
     char *text;            // Dynamic text content
+    
+    // Threading
+    double thread_ts;      // Parent timestamp (if 0, not a thread/reply)
+    char parent_user_id[12]; // Only for replies
+    
+    // Parent metadata (if this message is a parent)
+    int reply_count;
+    ReplyInfo *replies;    // Dynamic array of replies
+    int replies_capacity;  // Internal use for realloc
+    double latest_reply;
 } Message;
 
 #endif // MODELS_H

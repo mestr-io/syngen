@@ -52,9 +52,19 @@ USER_COUNT=$(grep -c "\"id\":.*\"U" "$EXTRACT_DIR/users.json")
 CHANNEL_COUNT=$(grep -c "\"id\":.*\"C" "$EXTRACT_DIR/channels.json")
 AVATAR_CHECK=$(grep -c "avatar_hash" "$EXTRACT_DIR/users.json")
 
+# Check for threads in a message file
+# Find a message file first
+MESSAGE_FILE=$(find "$EXTRACT_DIR" -name "*.json" | grep -v "users.json" | grep -v "channels.json" | head -n 1)
+if [ -z "$MESSAGE_FILE" ]; then
+    echo "Error: No message files found."
+    exit 1
+fi
+THREAD_CHECK=$(grep -c "thread_ts" "$MESSAGE_FILE")
+
 echo "Found $USER_COUNT users (expected 8)"
 echo "Found $CHANNEL_COUNT channels (expected 5)"
 echo "Found $AVATAR_CHECK users with avatars"
+echo "Found thread_ts occurrences in sample message file: $THREAD_CHECK"
 
 if [ "$USER_COUNT" -ne 8 ]; then
     echo "Error: User count mismatch."
@@ -70,6 +80,10 @@ if [ "$AVATAR_CHECK" -lt 8 ]; then
     echo "Error: Users missing avatar_hash."
     exit 1
 fi
+
+# Not failing on 0 threads because it's probabilistic, but likely with 100 messages and 0.1 prob
+# to have at least one thread or reply if generator works. 
+# But with small sample size, might be 0.
 
 echo "Integration test passed!"
 

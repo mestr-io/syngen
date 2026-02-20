@@ -12,7 +12,7 @@ Channel *generate_channels(int count, const User *users, int user_count);
 // Generate M messages, distributed across channels and users
 // Returns an array of messages. The caller must free it.
 // The messages are sorted by timestamp if possible, or we sort later.
-Message *generate_messages(int count, const Channel *channels, int channel_count, const User *users, int user_count);
+Message *generate_messages(int count, const Channel *channels, int channel_count, const User *users, int user_count, double thread_prob);
 
 void free_users(User *users, int count);
 void free_channels(Channel *channels, int count);

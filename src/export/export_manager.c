@@ -245,6 +245,63 @@ void export_write_messages(const char *base_path, const Message *messages, int c
         
         cJSON_AddStringToObject(msg, "text", m->text);
         
+        // Threading
+        if (m->thread_ts > 0) {
+            char thread_ts_str[32];
+            snprintf(thread_ts_str, sizeof(thread_ts_str), "%.6f", m->thread_ts);
+            cJSON_AddStringToObject(msg, "thread_ts", thread_ts_str);
+            
+            // If it's a child message (has parent_user_id)
+            if (m->parent_user_id[0] != '\0') {
+                cJSON_AddStringToObject(msg, "parent_user_id", m->parent_user_id);
+            }
+            
+            // If it's a parent message (has replies)
+            if (m->reply_count > 0) {
+                cJSON_AddNumberToObject(msg, "reply_count", m->reply_count);
+                
+                char latest_reply_str[32];
+                snprintf(latest_reply_str, sizeof(latest_reply_str), "%.6f", m->latest_reply);
+                cJSON_AddStringToObject(msg, "latest_reply", latest_reply_str);
+                
+                cJSON *replies = cJSON_CreateArray();
+                cJSON *reply_users = cJSON_CreateArray();
+                
+                char **unique_users = malloc(sizeof(char*) * (size_t)m->reply_count);
+                int unique_count = 0;
+                
+                for(int r=0; r < m->reply_count; r++) {
+                    cJSON *rep_obj = cJSON_CreateObject();
+                    cJSON_AddStringToObject(rep_obj, "user", m->replies[r].user);
+                    char r_ts_str[32];
+                    snprintf(r_ts_str, sizeof(r_ts_str), "%.6f", m->replies[r].ts);
+                    cJSON_AddStringToObject(rep_obj, "ts", r_ts_str);
+                    cJSON_AddItemToArray(replies, rep_obj);
+                    
+                    // Unique check
+                    int found = 0;
+                    for(int u=0; u<unique_count; u++) {
+                        if (strcmp(unique_users[u], m->replies[r].user) == 0) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        unique_users[unique_count++] = m->replies[r].user;
+                        cJSON_AddItemToArray(reply_users, cJSON_CreateString(m->replies[r].user));
+                    }
+                }
+                free(unique_users);
+                
+                cJSON_AddNumberToObject(msg, "reply_users_count", unique_count);
+                cJSON_AddItemToObject(msg, "reply_users", reply_users);
+                cJSON_AddItemToObject(msg, "replies", replies);
+                
+                cJSON_AddBoolToObject(msg, "is_locked", 0); // false
+                cJSON_AddBoolToObject(msg, "subscribed", 0); // false
+            }
+        }
+        
         cJSON_AddItemToArray(current_array, msg);
     }
     

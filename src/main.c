@@ -8,18 +8,19 @@
 #include "export_manager.h"
 
 void print_usage(const char *prog_name) {
-    fprintf(stderr, "Usage: %s -c <channels> -m <messages> -u <users> <output_filename>\n", prog_name);
-    fprintf(stderr, "Defaults: -c 25 -m 1000 -u 10\n");
+    fprintf(stderr, "Usage: %s -c <channels> -m <messages> -u <users> -t <thread_probability> <output_filename>\n", prog_name);
+    fprintf(stderr, "Defaults: -c 25 -m 1000 -u 10 -t 0.1\n");
 }
 
 int main(int argc, char *argv[]) {
     int c_count = 25;
     int m_count = 1000;
     int u_count = 10;
+    double thread_prob = 0.1;
     const char *output_filename = NULL;
     
     int opt;
-    while ((opt = getopt(argc, argv, "c:m:u:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:m:u:t:")) != -1) {
         switch (opt) {
             case 'c':
                 c_count = atoi(optarg);
@@ -29,6 +30,13 @@ int main(int argc, char *argv[]) {
                 break;
             case 'u':
                 u_count = atoi(optarg);
+                break;
+            case 't':
+                thread_prob = atof(optarg);
+                if (thread_prob < 0.0 || thread_prob > 1.0) {
+                    fprintf(stderr, "Error: Thread probability must be between 0.0 and 1.0\n");
+                    return 1;
+                }
                 break;
             default:
                 print_usage(argv[0]);
@@ -65,7 +73,7 @@ int main(int argc, char *argv[]) {
     printf("Generating data...\n");
     User *users = generate_users(u_count);
     Channel *channels = generate_channels(c_count, users, u_count);
-    Message *messages = generate_messages(m_count, channels, c_count, users, u_count);
+    Message *messages = generate_messages(m_count, channels, c_count, users, u_count, thread_prob);
     
     printf("Exporting data to %s...\n", temp_dir);
     export_init(temp_dir);
