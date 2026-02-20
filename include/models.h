@@ -10,7 +10,7 @@ typedef struct {
     char name[64];         // smyslov (username)
     char real_name[64];    // Marc
     char email[128];       // smyslov@gmail.com
-    char avatar_hash[13];  // 12 chars + null
+    char avatar_hash[33];  // 32 chars + null (Hex MD5 style)
     bool is_admin;
     bool is_bot;
 } User;

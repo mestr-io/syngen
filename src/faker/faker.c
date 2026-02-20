@@ -24,6 +24,16 @@ static void rand_alphanum(char *buffer, int length) {
     buffer[length] = '\0';
 }
 
+// Helper to generate a random hex string
+static void rand_hex(char *buffer, int length) {
+    const char charset[] = "0123456789abcdef";
+    for (int i = 0; i < length; i++) {
+        int key = rand() % (int)(sizeof(charset) - 1);
+        buffer[i] = charset[key];
+    }
+    buffer[length] = '\0';
+}
+
 void faker_get_id(char *buffer, const char *prefix) {
     // Slack IDs: U + 8-10 alphanumeric upper
     // E.g. U02M3TMTV9B
@@ -158,7 +168,7 @@ void faker_create_user(User *user) {
     user->is_bot = false;
     
     // Avatar hash (random hex)
-    rand_alphanum(user->avatar_hash, 12);
+    rand_hex(user->avatar_hash, 32);
 }
 
 void faker_create_channel(Channel *channel, const char *creator_id) {
