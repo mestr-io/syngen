@@ -116,3 +116,11 @@ syngen -c <channels> -m <messages> -u <users> <output_filename>
 - [x] **Debug Memory Layout**: Confirmed `User` struct size/offset changes were handled correctly after full rebuild.
 - [x] **Fix Corruption**: Forced dependency tracking in `Makefile` to prevent stale object files.
 - [x] **Fix Hex Format**: Updated `avatar_hash` to use valid 32-char hex strings (instead of alphanumeric) so Gravatar renders distinct images.
+
+## 7. Refactoring (Completed)
+
+### Flatten Source Directory
+- [x] **Move Files**: Moved `faker.c`, `generator.c`, `export_manager.c`, and `faker_data.h` to `src/` root.
+- [x] **Cleanup**: Removed empty subdirectories.
+- [x] **Update Build**: Updated `Makefile` and `extract_faker.py` to reflect new structure.
+- [x] **Verify**: Confirmed build and tests pass.

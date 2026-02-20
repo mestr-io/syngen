@@ -73,7 +73,7 @@ if __name__ == "__main__":
         "faker_words": words,
     }
 
-    output_path = "src/faker/faker_data.h"
+    output_path = "src/faker_data.h"
     write_header(data, output_path)
     print(
         f"Generated {output_path} with {len(first_names_male)} male names, {len(first_names_female)} female names, {len(last_names)} last names, and {len(words)} words."

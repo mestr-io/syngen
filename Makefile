@@ -7,7 +7,7 @@ VENDOR_DIR = vendor
 OBJ_DIR = obj
 BIN_DIR = bin
 
-SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/faker/faker.c $(SRC_DIR)/generator/generator.c $(SRC_DIR)/export/export_manager.c $(VENDOR_DIR)/cJSON/cJSON.c
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/faker.c $(SRC_DIR)/generator.c $(SRC_DIR)/export_manager.c $(VENDOR_DIR)/cJSON/cJSON.c
 OBJS = $(patsubst %.c,$(OBJ_DIR)/%.o,$(SRCS))
 
 TARGET = $(BIN_DIR)/syngen
