@@ -158,10 +158,7 @@ void faker_create_user(User *user) {
     user->is_bot = false;
     
     // Avatar hash (random hex)
-    char hash[13];
-    rand_alphanum(hash, 12); // Actually hex usually, but alphanum ok for placeholder
-    // Using gravatar for simplicity as per AGENTS.md
-    snprintf(user->image_original, sizeof(user->image_original), "https://www.gravatar.com/avatar/%s?d=identicon", hash);
+    rand_alphanum(user->avatar_hash, 12);
 }
 
 void faker_create_channel(Channel *channel, const char *creator_id) {

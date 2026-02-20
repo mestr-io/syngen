@@ -48,11 +48,13 @@ fi
 
 # Basic content check (grep for ID pattern)
 # cJSON formats with whitespace, e.g. "id": "U..."
-USER_COUNT=$(grep -c "\"id\":[[:space:]]*\"U" "$EXTRACT_DIR/users.json")
-CHANNEL_COUNT=$(grep -c "\"id\":[[:space:]]*\"C" "$EXTRACT_DIR/channels.json")
+USER_COUNT=$(grep -c "\"id\":.*\"U" "$EXTRACT_DIR/users.json")
+CHANNEL_COUNT=$(grep -c "\"id\":.*\"C" "$EXTRACT_DIR/channels.json")
+AVATAR_CHECK=$(grep -c "avatar_hash" "$EXTRACT_DIR/users.json")
 
 echo "Found $USER_COUNT users (expected 8)"
 echo "Found $CHANNEL_COUNT channels (expected 5)"
+echo "Found $AVATAR_CHECK users with avatars"
 
 if [ "$USER_COUNT" -ne 8 ]; then
     echo "Error: User count mismatch."
@@ -61,6 +63,11 @@ fi
 
 if [ "$CHANNEL_COUNT" -ne 5 ]; then
     echo "Error: Channel count mismatch."
+    exit 1
+fi
+
+if [ "$AVATAR_CHECK" -lt 8 ]; then
+    echo "Error: Users missing avatar_hash."
     exit 1
 fi
 

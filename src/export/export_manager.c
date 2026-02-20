@@ -36,10 +36,33 @@ void export_write_users(const char *base_path, const User *users, int count) {
         cJSON_AddStringToObject(profile, "email", users[i].email);
         cJSON_AddStringToObject(profile, "real_name", users[i].real_name);
         cJSON_AddStringToObject(profile, "display_name", users[i].name);
-        cJSON_AddStringToObject(profile, "image_original", users[i].image_original);
-        // Add fake image sizes
-        cJSON_AddStringToObject(profile, "image_24", users[i].image_original);
-        cJSON_AddStringToObject(profile, "image_32", users[i].image_original);
+        
+        cJSON_AddStringToObject(profile, "avatar_hash", users[i].avatar_hash);
+        
+        char img_url[256];
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=1024&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_original", img_url);
+        
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=24&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_24", img_url);
+        
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=32&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_32", img_url);
+        
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=48&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_48", img_url);
+        
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=72&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_72", img_url);
+        
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=192&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_192", img_url);
+        
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=512&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_512", img_url);
+        
+        snprintf(img_url, sizeof(img_url), "https://secure.gravatar.com/avatar/%s.jpg?s=1024&d=identicon", users[i].avatar_hash);
+        cJSON_AddStringToObject(profile, "image_1024", img_url);
         
         cJSON_AddItemToObject(user, "profile", profile);
         
