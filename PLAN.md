@@ -14,6 +14,7 @@ syngen -c <channels> -m <messages> -u <users> <output_filename>
 -   `-c`: Number of channels to generate (default: 25).
 -   `-m`: Total number of messages to generate (default: 1000).
 -   `-u`: Number of users to generate (default: 10).
+-   `-t`: Probability of threading (default: 0.1).
 -   `<output_filename>`: The name of the output zip file (e.g., `export.zip`).
 
 ## 3. Architecture
@@ -108,3 +109,10 @@ syngen -c <channels> -m <messages> -u <users> <output_filename>
 -   **Names**: We will extract ~1000 common names from the `faker` library.
 -   **Text**: We will use a standard "Lorem Ipsum" word list to generate sentences.
 -   **Timestamps**: We will generate timestamps spanning a recent 30-day window.
+
+## 6. Bug Fixes (Completed)
+
+### Fix Identical Thumbnails
+- [x] **Debug Memory Layout**: Confirmed `User` struct size/offset changes were handled correctly after full rebuild.
+- [x] **Fix Corruption**: Forced dependency tracking in `Makefile` to prevent stale object files.
+- [x] **Fix Hex Format**: Updated `avatar_hash` to use valid 32-char hex strings (instead of alphanumeric) so Gravatar renders distinct images.
